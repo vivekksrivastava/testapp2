@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="62e9429a-36f3-48bd-96c1-a4ec0552594e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="a334befb-d05b-45ff-b0d7-27fb1e2ccd92" >
+		<!-- <redis:nonclustered-connection host="${redis.host}" /> -->
+		<os:connection >
+			<reconnection failsDeployment="true" >
+				<reconnect />
+			</reconnection>
+		</os:connection>
+	</os:config>
+	<flow name="testappFlow" doc:id="bb7ec6a4-b751-4d83-82a0-2eb6f0f14761" >
+		<http:listener doc:name="Listener" doc:id="0e92ee9b-b738-4731-8212-d1ad2c1c2b79" config-ref="HTTP_Listener_config" path="/test" allowedMethods="GET" responseStreamingMode="ALWAYS">
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="b6215ba2-bff1-4435-91d9-63f74ce167e2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+'HELLO WORLD']]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="testappFlow1" doc:id="63096794-531f-48df-adaf-51c25e2b56f4" >
+		<http:listener doc:name="Listener" doc:id="7527a01f-06f0-47a5-9bf5-11ab5441f4f8" config-ref="HTTP_Listener_config" path="/execute1"/>
+		<ee:transform doc:name="Transform Message" doc:id="92905517-a328-495f-b0b8-f1e44f15c192" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var x=[
+	{
+		text: "abc20938408"
+	},
+	{
+		text: "def20938408"
+	},
+]
+var y = ['abc']
+---
+x filter (y contains ($.text[0 to 2]))]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
